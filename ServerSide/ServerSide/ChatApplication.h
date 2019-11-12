@@ -1,11 +1,12 @@
 #ifndef CHATAPPLICATION_H
 #define CHATAPPLICATION_H
 
+#include <map>
+#include <thread>
+#include <vector>
+#include <sstream>
 #include <iostream>
 #include <Windows.h>
-#include <thread>
-#include <map>
-#include <vector>
 
 #include <SDL.h>
 #include <SDL_net.h>
@@ -29,19 +30,23 @@ private:
 
 	void WaitForClients();
 
-	void ReceiveText();
+	//void ReceiveText();
+
+	void UpdateChat(int clientID);
 
 	void Shutdown();
 
 private:
 
-	std::vector<Client*> clients;
+	//std::vector<Client*> clients;
 
-	std::vector<String*> chatHistory;
+	std::map<int, Client*> m_clients;
 
 	bool m_exit = false;
 
-	//Connection m_host;
+	int m_clientIDCount = 0;
+
+	//Connection m_host
 
 	TCPsocket m_listenSocket;
 	

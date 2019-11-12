@@ -18,12 +18,11 @@ bool ChatApplication::Run()
 
 	bool running = true;
 
-	clients.push_back(new Client());
-
 	// Waiting for clients
+
+	m_clients[m_clientIDCount] = new Client();
 	
-	std::thread thread1;
-	thread1 = std::thread(&ChatApplication::WaitForClients, *this);
+	std::thread thread1 = std::thread(&ChatApplication::WaitForClients, *this);
 
 	thread1.detach();
 
@@ -31,10 +30,23 @@ bool ChatApplication::Run()
 
 	while (!m_exit)
 	{
-		for (auto it = clients.begin(); it != clients.end(); it++)
-		{
+		// Sending and receiving
 
+		std::vector<int> disconnectedClients;
+
+		for (auto it = m_clients.begin(); it != m_clients.end(); it++)
+		{
+			if (it->second->ClientConnected())
+			{
+				std::thread thread2 = std::thread(&ChatApplication::UpdateChat, it->first, *this);
+				thread2.detach();
+				//UpdateChat(it->first);
+			}
 		}
+
+		// Check for disconnection of clients
+
+		// Check for disconnection of server
 	}
 
 	// --------- END ---------
@@ -85,26 +97,64 @@ void ChatApplication::WaitForClients()
 {
 	while (!m_exit)
 	{
-		while (clients.back()->GetSocket() == nullptr)
+		while (m_clients[m_clientIDCount]->GetSocket() == nullptr)
 		{
-			clients.back()->ListenForClient(m_listenSocket);
+			m_clients[m_clientIDCount]->ListenForClient(m_listenSocket);
 		}
 
-		std::thread t1(&Client::UpdateInfo, *clients.back());
-
+		std::thread t1(&Client::UpdateInfo, *m_clients[m_clientIDCount]);
 		t1.detach();
 
-		clients.push_back(new Client());
-	}	
-}
+		m_clientIDCount++;
 
-void ChatApplication::ReceiveText()
-{
-	
+		m_clients[m_clientIDCount] = new Client();
+	}
 }
 
 void ChatApplication::Shutdown()
 {
 	SDLNet_Quit();
 	SDL_Quit();
+}
+
+void ChatApplication::UpdateChat(int clientID)
+{
+	String message;
+
+	m_clients[clientID]->ReceiveText(message);
+
+	if (m_clients[clientID]->TextReceived())
+	{
+		if (message != "exit")
+		{
+			// Add other client's info - e.g. name and the color they chose
+			String full = m_clients[clientID]->GetName();
+			full += "$";
+
+			std::stringstream strs;
+			strs << m_clients[clientID]->GetColor();
+			char colorAtt[2048] = { '\0' };
+			strs >> colorAtt;
+
+			full += colorAtt;
+			full += "$";
+
+			full += message;
+
+			// sends it to other clients
+			for (auto it = m_clients.begin(); it != m_clients.end(); it++)
+			{
+				if (it->first != clientID) // except for itself
+				{
+					it->second->SendText(full);
+				}
+			}
+
+			HANDLE hconsole = GetStdHandle(STD_OUTPUT_HANDLE);
+			SetConsoleTextAttribute(hconsole, m_clients[clientID]->GetColor()); // sets color
+
+			SetConsoleTextAttribute(hconsole, 15); // sets it back to white
+			std::cout << ": " << message << std::endl;
+		}
+	}
 }
