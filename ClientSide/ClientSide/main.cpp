@@ -5,12 +5,13 @@
 #include <SDL_net.h>
 
 #include "String.h"
-#include "Connection.h"
+#include "ChatApplication.h"
 
-Connection server;
+ChatApplication chatApp;
 
 int main(int argc, char* argv[])
 {
+	/*
 	if (!server.Init()) return -1;
 
 	String address;
@@ -20,7 +21,7 @@ int main(int argc, char* argv[])
 	/*String portString;
 	std::cout << "Enter the port: ";
 	std::cin >> portString;
-	int port = atoi(portString.GetString());*/
+	int port = atoi(portString.GetString());
 
 	if (!server.ResolveHost(address, 42069)) return -1;
 
@@ -66,12 +67,16 @@ int main(int argc, char* argv[])
 			isRunning = false;
 			break;
 		}
+
 	}
 
 	// ---------------
 
 	server.CloseSocket();
 	server.Shutdown();
+	*/
+
+	if (!chatApp.Run()) return -1;
 
 	system("pause");
 

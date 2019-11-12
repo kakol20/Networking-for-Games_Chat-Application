@@ -12,7 +12,7 @@ bool Connection::Init()
 {
 	if (SDL_Init(SDL_INIT_EVERYTHING) == -1)
 	{
-		std::cout << "Error initializing SDL\n";
+		std::cout << "Error initializing SDL thr\n";
 
 		system("pause");
 

@@ -94,6 +94,8 @@ void Client::UpdateInfo()
 	strValue << color;
 	strValue >> m_colorID;
 
+	std::cout << m_name << " is connected!" << std::endl;
+
 	m_isConnected = true;
 }
 

@@ -2,11 +2,13 @@
 #define CONNECTION_H
 
 #include <iostream>
-
-#include "String.h"
+#include <Windows.h>
 
 #include <SDL.h>
 #include <SDL_net.h>
+
+#include "String.h"
+
 
 class Connection
 {
