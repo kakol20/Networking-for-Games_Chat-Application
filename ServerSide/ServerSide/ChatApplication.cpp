@@ -50,9 +50,16 @@ bool ChatApplication::Run()
 		}
 
 		// Check for disconnection of clients
-		//for (auto it = disconnectedClients.begin(); it != disc)
+		for (auto it = disconnectedClients.begin(); it != disconnectedClients.end(); it++)
+		{
+			m_clients[*it]->CloseSocket();
+			delete m_clients[*it];
+			m_clients[*it] = nullptr;
 
-		// Check for disconnection of server
+			m_clients.erase(*it);
+		}
+
+		// TODO: Check for disconnection of server
 	}
 
 	// --------- END ---------
