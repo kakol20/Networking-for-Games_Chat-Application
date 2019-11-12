@@ -22,7 +22,7 @@ bool ChatApplication::Run()
 
 	m_clients[m_clientIDCount] = new Client();
 	
-	std::thread thread1 = std::thread(&ChatApplication::WaitForClients, *this);
+	std::thread thread1 = std::thread(&ChatApplication::WaitForClients, this);
 
 	thread1.detach();
 
@@ -38,13 +38,19 @@ bool ChatApplication::Run()
 		{
 			if (it->second->ClientConnected())
 			{
-				std::thread thread2 = std::thread(&ChatApplication::UpdateChat, it->first, *this);
+				std::thread thread2 = std::thread(&ChatApplication::UpdateChat, this, it->first);
 				thread2.detach();
 				//UpdateChat(it->first);
+			}
+
+			if (it->second->IsDisconnecting())
+			{
+				disconnectedClients.push_back(it->first);
 			}
 		}
 
 		// Check for disconnection of clients
+		//for (auto it = disconnectedClients.begin(); it != disc)
 
 		// Check for disconnection of server
 	}
