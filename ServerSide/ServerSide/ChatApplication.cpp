@@ -176,9 +176,12 @@ void ChatApplication::UpdateChat(int clientID)
 			// sends it to other clients
 			for (auto it = m_clients.begin(); it != m_clients.end(); it++)
 			{
-				if (it->first != clientID) // except for itself
+				if (it->second->ClientConnected())
 				{
-					it->second->SendText(full);
+					if (it->first != clientID) // except for itself
+					{
+						it->second->SendText(full);
+					}
 				}
 			}
 
