@@ -55,8 +55,6 @@ void Client::SendText(const String& message)
 	String test = message;
 	if (test == "exit")
 	{
-		
-
 		m_disconnecting = true;
 	}
 
@@ -94,7 +92,16 @@ void Client::UpdateInfo()
 	strValue << color;
 	strValue >> m_colorID;
 
-	std::cout << m_name << " is connected!" << std::endl;
+	HANDLE hconsole = GetStdHandle(STD_OUTPUT_HANDLE);
+	SetConsoleTextAttribute(hconsole, m_colorID);
+
+	std::cout << m_name;
+
+	SetConsoleTextAttribute(hconsole, 15);
+
+	std::cout << " is connected!" << std::endl;
+
+	//std::cout << m_name << " is connected!" << std::endl;
 
 	m_isConnected = true;
 }

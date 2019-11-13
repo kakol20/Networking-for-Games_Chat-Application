@@ -2,6 +2,7 @@
 #define CLIENT_H
 
 #include <sstream>
+#include <windows.h> 
 
 #include <SDL.h>
 #include <SDL_net.h>

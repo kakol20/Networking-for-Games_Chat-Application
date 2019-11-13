@@ -28,6 +28,8 @@ private:
 
 	void ReceiveText();
 
+	void SendText();
+
 	bool SendInfo();
 
 	void CloseSocket();

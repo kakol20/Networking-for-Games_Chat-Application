@@ -26,8 +26,17 @@ bool ChatApplication::Run()
 
 	while (!m_exit)
 	{
+		// recieving text
 		std::thread thread1 = std::thread(&ChatApplication::ReceiveText, this);
 		thread1.detach();
+
+		// sending text
+		std::thread thread2 = std::thread(&ChatApplication::SendText, this);
+		
+		if (thread2.joinable())
+		{
+			thread2.join();
+		}
 	}
 
 	// --------- END ---------
@@ -144,6 +153,34 @@ void ChatApplication::ReceiveText()
 		}
 	}
 	
+}
+
+void ChatApplication::SendText()
+{
+	String message;
+
+	HANDLE hconsole = GetStdHandle(STD_OUTPUT_HANDLE);
+	SetConsoleTextAttribute(hconsole, m_color);
+
+	SetConsoleTextAttribute(hconsole, 15); //white
+	std::cout << " : ";
+
+	std::cin >> message;
+
+	if (message == "exit")
+	{
+		m_exit = true;
+	}
+
+	size_t length = message.Length() + 1;
+
+	if (SDLNet_TCP_Send(m_socket, message.GetString(), length) < (int)length)
+	{
+		std::cout << "Error sending message to server " << std::endl;
+
+		m_exit = true;
+		system("pause");
+	}
 }
 
 bool ChatApplication::SendInfo()
