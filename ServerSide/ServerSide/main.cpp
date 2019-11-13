@@ -17,7 +17,7 @@ int main(int argc, char* argv[])
 {
 	ChatApplication host;
 
-	if (host.Run());
+	if (!host.Run()) return -1;
 
 	system("pause");
 

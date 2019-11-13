@@ -162,6 +162,8 @@ void ChatApplication::SendText()
 	HANDLE hconsole = GetStdHandle(STD_OUTPUT_HANDLE);
 	SetConsoleTextAttribute(hconsole, m_color);
 
+	std::cout << m_name;
+
 	SetConsoleTextAttribute(hconsole, 15); //white
 	std::cout << " : ";
 
@@ -172,9 +174,9 @@ void ChatApplication::SendText()
 		m_exit = true;
 	}
 
-	size_t length = message.Length() + 1;
+	int length = message.Length() + 1;
 
-	if (SDLNet_TCP_Send(m_socket, message.GetString(), length) < (int)length)
+	if (SDLNet_TCP_Send(m_socket, message.GetString(), length) < length)
 	{
 		std::cout << "Error sending message to server " << std::endl;
 

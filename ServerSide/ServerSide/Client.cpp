@@ -50,7 +50,7 @@ void Client::SendText(const String& message)
 {
 
 	String full = message;
-	size_t length = message.Length() + 1;
+	int length = message.Length() + 1;
 
 	String test = message;
 	if (test == "exit")
@@ -58,7 +58,7 @@ void Client::SendText(const String& message)
 		m_disconnecting = true;
 	}
 
-	if (SDLNet_TCP_Send(m_socket, full.GetString(), length) < (int)length)
+	if (SDLNet_TCP_Send(m_socket, full.GetString(), length) < length)
 	{
 		std::cout << "Error sending message to: ";
 		std::cout << m_name;

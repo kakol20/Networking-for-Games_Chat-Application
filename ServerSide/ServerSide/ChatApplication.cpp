@@ -30,6 +30,10 @@ bool ChatApplication::Run()
 
 	while (!m_exit)
 	{
+		// Create a vector of threads for each client
+
+		std::vector<std::thread> clientThreads;
+
 		// Sending and receiving
 
 		std::vector<int> disconnectedClients;
@@ -38,14 +42,27 @@ bool ChatApplication::Run()
 		{
 			if (it->second->ClientConnected())
 			{
-				std::thread thread2 = std::thread(&ChatApplication::UpdateChat, this, it->first);
-				thread2.detach();
+
+				//std::thread thread2 = std::thread(&ChatApplication::UpdateChat, this, it->first);
+
+				clientThreads.push_back(std::thread(&ChatApplication::UpdateChat, this, it->first));
+
 				//UpdateChat(it->first);
 			}
 
 			if (it->second->IsDisconnecting())
 			{
 				disconnectedClients.push_back(it->first);
+			}
+		}
+
+		// Join threads
+
+		for (auto it = clientThreads.begin(); it != clientThreads.end(); it++)
+		{
+			if ((*it).joinable())
+			{
+				(*it).join();
 			}
 		}
 
@@ -115,8 +132,10 @@ void ChatApplication::WaitForClients()
 			m_clients[m_clientIDCount]->ListenForClient(m_listenSocket);
 		}
 
-		std::thread t1(&Client::UpdateInfo, *m_clients[m_clientIDCount]);
-		t1.detach();
+		/*std::thread t1(&Client::UpdateInfo, *m_clients[m_clientIDCount]);
+		t1.detach();*/
+
+		m_clients[m_clientIDCount]->UpdateInfo();
 
 		m_clientIDCount++;
 
@@ -165,6 +184,8 @@ void ChatApplication::UpdateChat(int clientID)
 
 			HANDLE hconsole = GetStdHandle(STD_OUTPUT_HANDLE);
 			SetConsoleTextAttribute(hconsole, m_clients[clientID]->GetColor()); // sets color
+
+			std::cout << m_clients[clientID]->GetName();
 
 			SetConsoleTextAttribute(hconsole, 15); // sets it back to white
 			std::cout << ": " << message << std::endl;
