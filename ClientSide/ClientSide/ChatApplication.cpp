@@ -28,15 +28,25 @@ bool ChatApplication::Run()
 	{
 		// recieving text
 		std::thread thread1 = std::thread(&ChatApplication::ReceiveText, this);
+
 		thread1.detach();
 
 		// sending text
-		std::thread thread2 = std::thread(&ChatApplication::SendText, this);
-		
-		if (thread2.joinable())
+		/*std::thread thread2 = std::thread(&ChatApplication::SendText, this);
+
+		thread2.detach();*/
+
+		SendText();
+
+		/*if (thread2.joinable())
 		{
 			thread2.join();
 		}
+
+		if (thread1.joinable())
+		{
+			thread1.join();
+		}*/
 	}
 
 	// --------- END ---------

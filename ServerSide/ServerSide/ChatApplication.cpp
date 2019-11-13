@@ -42,12 +42,7 @@ bool ChatApplication::Run()
 		{
 			if (it->second->ClientConnected())
 			{
-
-				//std::thread thread2 = std::thread(&ChatApplication::UpdateChat, this, it->first);
-
 				clientThreads.push_back(std::thread(&ChatApplication::UpdateChat, this, it->first));
-
-				//UpdateChat(it->first);
 			}
 
 			if (it->second->IsDisconnecting())
@@ -67,6 +62,7 @@ bool ChatApplication::Run()
 		}
 
 		// Check for disconnection of clients
+
 		for (auto it = disconnectedClients.begin(); it != disconnectedClients.end(); it++)
 		{
 			m_clients[*it]->CloseSocket();
@@ -132,9 +128,6 @@ void ChatApplication::WaitForClients()
 			m_clients[m_clientIDCount]->ListenForClient(m_listenSocket);
 		}
 
-		/*std::thread t1(&Client::UpdateInfo, *m_clients[m_clientIDCount]);
-		t1.detach();*/
-
 		m_clients[m_clientIDCount]->UpdateInfo();
 
 		m_clientIDCount++;
@@ -173,6 +166,9 @@ void ChatApplication::UpdateChat(int clientID)
 
 			full += message;
 
+			// create vector for each other client
+			std::vector<std::thread> otherClients;
+
 			// sends it to other clients
 			for (auto it = m_clients.begin(); it != m_clients.end(); it++)
 			{
@@ -180,8 +176,19 @@ void ChatApplication::UpdateChat(int clientID)
 				{
 					if (it->first != clientID) // except for itself
 					{
-						it->second->SendText(full);
+						//it->second->SendText(full);
+
+						otherClients.push_back(std::thread(&Client::SendText, it->second, full));
 					}
+				}
+			}
+
+			// waits for threads to finish
+			for (auto it = otherClients.begin(); it != otherClients.end(); it++)
+			{
+				if ((*it).joinable())
+				{
+					(*it).join();
 				}
 			}
 
