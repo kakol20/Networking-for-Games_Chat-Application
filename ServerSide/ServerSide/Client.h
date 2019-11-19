@@ -46,7 +46,7 @@ private:
 
 	bool m_isConnected;
 
-	TCPsocket m_socket;
+	TCPsocket m_socket = nullptr;
 };
 
 #endif // !CLIENT_H

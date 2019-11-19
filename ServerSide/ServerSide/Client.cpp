@@ -7,6 +7,8 @@ Client::Client()
 	m_name = "N/A";
 	m_disconnecting = false;
 	m_isConnected = false;
+
+	m_socket = nullptr;
 }
 
 Client::~Client()
@@ -21,6 +23,7 @@ const TCPsocket Client::GetSocket() const
 void Client::ListenForClient(const TCPsocket& listenSocket)
 {
 	m_socket = SDLNet_TCP_Accept(listenSocket);
+	//m_isConnected = true;
 }
 
 void Client::ReceiveText(String& message)
@@ -28,6 +31,8 @@ void Client::ReceiveText(String& message)
 	m_Received = false;
 
 	char response[2048] = { '\0' };
+
+	//std::cin.ignore();
 
 	if (SDLNet_TCP_Recv(m_socket, response, 2048) <= 0)
 	{
@@ -70,7 +75,6 @@ void Client::SendText(const String& message)
 void Client::UpdateInfo()
 {
 	// Ask for name
-
 	char name[2048] = { '\0' };
 
 	if (SDLNet_TCP_Recv(m_socket, name, 2048) <= 0)

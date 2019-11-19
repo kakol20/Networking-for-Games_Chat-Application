@@ -43,7 +43,7 @@ private:
 	String m_name = "";
 	int m_color = 7;
 
-	bool m_exit;
+	bool m_exit = false;
 };
 
 #endif // !CHATAPP_H

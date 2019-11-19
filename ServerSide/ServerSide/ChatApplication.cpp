@@ -30,29 +30,36 @@ bool ChatApplication::Run()
 
 	while (!m_exit)
 	{
-		// Create a vector of threads for each client
+		std::vector<int> disconnectedClients;
 
-		std::vector<std::thread> clientThreads;
 
 		// Sending and receiving
 
-		std::vector<int> disconnectedClients;
+		std::vector<std::thread> clientThreads; // Create a vector of threads for each client
 
 		for (auto it = m_clients.begin(); it != m_clients.end(); it++)
 		{
 			if (it->second->ClientConnected())
 			{
 				clientThreads.push_back(std::thread(&ChatApplication::UpdateChat, this, it->first));
-			}
 
-			if (it->second->IsDisconnecting())
-			{
-				disconnectedClients.push_back(it->first);
+				if (it->second->IsDisconnecting())
+				{
+					disconnectedClients.push_back(it->first);
+				}
 			}
 		}
 
-		// Join threads
+		if (m_clients.size() - 1 == 1) // if there is only one client connected then server needs to send a message to that client
+		{
+			String message = "Server$7$No other client connected";
 
+			clientThreads.push_back(std::thread(&Client::SendText, m_clients[0], message));
+
+				//m_clients[0]->SendText(message);
+		}
+
+		// Join threads - wait for them to finish
 		for (auto it = clientThreads.begin(); it != clientThreads.end(); it++)
 		{
 			if ((*it).joinable())
@@ -127,6 +134,10 @@ void ChatApplication::WaitForClients()
 		{
 			m_clients[m_clientIDCount]->ListenForClient(m_listenSocket);
 		}
+
+		//m_clients[m_clientIDCount]->ListenForClient(m_listenSocket);
+
+		//m_clients[m_clientIDCount]->
 
 		m_clients[m_clientIDCount]->UpdateInfo();
 

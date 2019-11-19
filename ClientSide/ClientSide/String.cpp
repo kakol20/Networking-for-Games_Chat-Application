@@ -16,6 +16,7 @@ std::istream& operator>>(std::istream& is, String& string)
 
 	char* temp = new char[280];
 
+	//std::cin.ignore();
 	is.getline(temp, 280);
 
 	string = temp;

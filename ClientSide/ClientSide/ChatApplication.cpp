@@ -24,26 +24,18 @@ bool ChatApplication::Run()
 
 	m_exit = false;
 
+	std::cin.ignore();
+
 	while (!m_exit)
 	{
-		// recieving text
-		std::thread thread1 = std::thread(&ChatApplication::ReceiveText, this);
-
-		thread1.detach();
-
 		// sending text
-		/*std::thread thread2 = std::thread(&ChatApplication::SendText, this);
-
-		thread2.detach();*/
-
 		SendText();
 
-		/*if (thread2.joinable())
-		{
-			thread2.join();
-		}
+		// recieving text
+		//std::thread thread1 = std::thread(&ChatApplication::ReceiveText, this);
+		ReceiveText();
 
-		if (thread1.joinable())
+		/*if (thread1.joinable())
 		{
 			thread1.join();
 		}*/
@@ -118,6 +110,8 @@ void ChatApplication::ReceiveText()
 {
 	char response[2048] = { '\0' };
 
+	std::cin.ignore();
+
 	if (SDLNet_TCP_Recv(m_socket, response, 2048) <= 0)
 	{
 		std::cout << "Error recieving message" << std::endl;
@@ -162,20 +156,20 @@ void ChatApplication::ReceiveText()
 			std::cout << " : " << messageChar << std::endl;
 		}
 	}
-	
 }
 
 void ChatApplication::SendText()
 {
-	String message;
+
+	String message = " ";
 
 	HANDLE hconsole = GetStdHandle(STD_OUTPUT_HANDLE);
-	SetConsoleTextAttribute(hconsole, m_color);
+	/*SetConsoleTextAttribute(hconsole, m_color);
 
-	std::cout << m_name;
+	std::cout << m_name;*/
 
-	SetConsoleTextAttribute(hconsole, 15); //white
-	std::cout << " : ";
+	SetConsoleTextAttribute(hconsole, 7); //white
+	//std::cout << " : ";
 
 	std::cin >> message;
 
@@ -184,9 +178,11 @@ void ChatApplication::SendText()
 		m_exit = true;
 	}
 
-	int length = message.Length() + 1;
+	String temp = message;
 
-	if (SDLNet_TCP_Send(m_socket, message.GetString(), length) < length)
+	int length = temp.Length() + 1;
+
+	if (SDLNet_TCP_Send(m_socket, temp.GetString(), length) < length)
 	{
 		std::cout << "Error sending message to server " << std::endl;
 
