@@ -26,60 +26,52 @@ bool ChatApplication::Run()
 
 	thread1.detach();
 
+	std::cout << "Waiting for first client to connect" << std::endl;
+
+	// waits for one client to connect
+	while (m_clientIDCount <= 0);
+
 	// --------- MAIN ---------
+
+	// Check for server exit
+
+	std::thread thread2 = std::thread(&ChatApplication::CheckForServerExit, this);
+	thread2.detach();
 
 	while (!m_exit)
 	{
-		std::vector<int> disconnectedClients;
-
-
 		// Sending and receiving
 
-		std::vector<std::thread> clientThreads; // Create a vector of threads for each client
+		for (auto it = m_clients.begin(); it != m_clients.end(); it++) 
+		{
+			if (!it->second->InThread() && it->second->ClientConnected()) // check if the client's update chat is already in a thread and it's connected
+			{
+				std::thread thread3 = std::thread(&ChatApplication::UpdateChat, this, it->first);
+				thread3.detach();
+				
+				it->second->SetInThread(true);
+			}
+		}
+
+		// Looks for a disconnected client and removes it from map container
 
 		for (auto it = m_clients.begin(); it != m_clients.end(); it++)
 		{
-			if (it->second->ClientConnected())
+			if (it->second->IsDisconnecting())
 			{
-				clientThreads.push_back(std::thread(&ChatApplication::UpdateChat, this, it->first));
-
-				if (it->second->IsDisconnecting())
-				{
-					disconnectedClients.push_back(it->first);
-				}
+				m_clients[it->first]->CloseSocket();
+				delete m_clients[it->first];
+				m_clients[it->first] = nullptr;
 			}
 		}
+	}
 
-		if (m_clients.size() - 1 == 1) // if there is only one client connected then server needs to send a message to that client
-		{
-			String message = "Server$7$No other client connected";
-
-			clientThreads.push_back(std::thread(&Client::SendText, m_clients[0], message));
-
-				//m_clients[0]->SendText(message);
-		}
-
-		// Join threads - wait for them to finish
-		for (auto it = clientThreads.begin(); it != clientThreads.end(); it++)
-		{
-			if ((*it).joinable())
-			{
-				(*it).join();
-			}
-		}
-
-		// Check for disconnection of clients
-
-		for (auto it = disconnectedClients.begin(); it != disconnectedClients.end(); it++)
-		{
-			m_clients[*it]->CloseSocket();
-			delete m_clients[*it];
-			m_clients[*it] = nullptr;
-
-			m_clients.erase(*it);
-		}
-
-		// TODO: Check for disconnection of server
+	// deletes all clients in map container
+	for (auto it = m_clients.begin(); it != m_clients.end(); it++)
+	{
+		m_clients[it->first]->CloseSocket();
+		delete m_clients[it->first];
+		m_clients[it->first] = nullptr;
 	}
 
 	// --------- END ---------
@@ -135,16 +127,25 @@ void ChatApplication::WaitForClients()
 			m_clients[m_clientIDCount]->ListenForClient(m_listenSocket);
 		}
 
-		//m_clients[m_clientIDCount]->ListenForClient(m_listenSocket);
-
-		//m_clients[m_clientIDCount]->
-
 		m_clients[m_clientIDCount]->UpdateInfo();
 
 		m_clientIDCount++;
 
 		m_clients[m_clientIDCount] = new Client();
+
 	}
+}
+
+void ChatApplication::CheckForServerExit()
+{
+	String input;
+
+	while (input != "exit")
+	{
+		std::cin >> input;
+	}
+
+	m_exit = true;
 }
 
 void ChatApplication::Shutdown()
@@ -155,61 +156,83 @@ void ChatApplication::Shutdown()
 
 void ChatApplication::UpdateChat(int clientID)
 {
-	String message;
-
-	m_clients[clientID]->ReceiveText(message);
-
-	if (m_clients[clientID]->TextReceived())
+	while (!m_clients[clientID]->IsDisconnecting())
 	{
-		if (message != "exit")
+		String message;
+
+		// receives text
+		m_clients[clientID]->ReceiveText(message);
+
+		// prints it for server
+		HANDLE hconsole = GetStdHandle(STD_OUTPUT_HANDLE);
+		SetConsoleTextAttribute(hconsole, m_clients[clientID]->GetColor()); // sets color
+
+		std::cout << m_clients[clientID]->GetName();
+
+		SetConsoleTextAttribute(hconsole, 15); // sets it back to white
+		std::cout << ": " << message << std::endl;
+
+		// send text to other client
+
+		if (m_clients.size() - 1 == 1) // checks if only 1 client is connected
 		{
-			// Add other client's info - e.g. name and the color they chose
-			String full = m_clients[clientID]->GetName();
-			full += "$";
+			String serverMsg = "Server$64$No other client connected"; // Name$Color$Message
 
-			std::stringstream strs;
-			strs << m_clients[clientID]->GetColor();
-			char colorAtt[2048] = { '\0' };
-			strs >> colorAtt;
+			auto it = m_clients.begin();
 
-			full += colorAtt;
-			full += "$";
-
-			full += message;
-
-			// create vector for each other client
-			std::vector<std::thread> otherClients;
-
-			// sends it to other clients
-			for (auto it = m_clients.begin(); it != m_clients.end(); it++)
+			it->second->SendText(serverMsg);
+		}
+		else // else send it message to other clients
+		{
+			if (m_clients[clientID]->TextReceived())
 			{
-				if (it->second->ClientConnected())
+				if (message != "exit")
 				{
-					if (it->first != clientID) // except for itself
-					{
-						//it->second->SendText(full);
+					// Add other client's info - e.g. name and the color they chose
+					String full = m_clients[clientID]->GetName();
+					full += "$";
 
-						otherClients.push_back(std::thread(&Client::SendText, it->second, full));
+					std::stringstream strs;
+					strs << m_clients[clientID]->GetColor();
+					char colorAtt[2048] = { '\0' };
+					strs >> colorAtt;
+
+					full += colorAtt;
+					full += "$";
+
+					full += message;
+
+					// create vector for each other client
+					std::vector<std::thread> otherClients;
+
+					// sends it to other clients
+					for (auto it = m_clients.begin(); it != m_clients.end(); it++)
+					{
+						if (it->second->ClientConnected())
+						{
+							if (it->first != clientID) // except for itself
+							{
+								//it->second->SendText(full);
+
+								otherClients.push_back(std::thread(&Client::SendText, it->second, full));
+							}
+						}
+					}
+
+					// waits for threads to finish
+					for (auto it = otherClients.begin(); it != otherClients.end(); it++)
+					{
+						if ((*it).joinable())
+						{
+							(*it).join();
+						}
 					}
 				}
-			}
-
-			// waits for threads to finish
-			for (auto it = otherClients.begin(); it != otherClients.end(); it++)
-			{
-				if ((*it).joinable())
+				else
 				{
-					(*it).join();
+					break;
 				}
 			}
-
-			HANDLE hconsole = GetStdHandle(STD_OUTPUT_HANDLE);
-			SetConsoleTextAttribute(hconsole, m_clients[clientID]->GetColor()); // sets color
-
-			std::cout << m_clients[clientID]->GetName();
-
-			SetConsoleTextAttribute(hconsole, 15); // sets it back to white
-			std::cout << ": " << message << std::endl;
 		}
 	}
 }

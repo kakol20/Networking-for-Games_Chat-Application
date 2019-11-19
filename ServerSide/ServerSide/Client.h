@@ -30,6 +30,9 @@ public:
 
 	bool ClientConnected() const;
 
+	bool InThread() const;
+	void SetInThread(const bool flag);
+
 	const String GetName() const;
 	const int GetColor() const;
 
@@ -45,6 +48,9 @@ private:
 	bool m_disconnecting;
 
 	bool m_isConnected;
+	
+	bool m_isInThread;
+
 
 	TCPsocket m_socket = nullptr;
 };

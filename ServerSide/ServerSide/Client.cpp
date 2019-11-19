@@ -9,6 +9,8 @@ Client::Client()
 	m_isConnected = false;
 
 	m_socket = nullptr;
+
+	m_isInThread = false;
 }
 
 Client::~Client()
@@ -75,24 +77,9 @@ void Client::SendText(const String& message)
 void Client::UpdateInfo()
 {
 	// Ask for name
-	/*char name[2048] = { '\0' };
-
-	if (SDLNet_TCP_Recv(m_socket, name, 2048) <= 0)
-	{
-		std::cout << "Error sending message" << std::endl;
-	}*/
-
-	//m_name = name;
-
 	ReceiveText(m_name);
 
 	// Ask color they want to choose
-	/*char color[2048] = { '\0' };
-
-	if (SDLNet_TCP_Recv(m_socket, color, 2048) <= 0)
-	{
-		std::cout << "Error sending message" << std::endl;
-	}*/
 	String color;
 	ReceiveText(color);
 
@@ -122,6 +109,16 @@ bool Client::IsDisconnecting() const
 bool Client::ClientConnected() const
 {
 	return m_isConnected;
+}
+
+bool Client::InThread() const
+{
+	return m_isInThread;
+}
+
+void Client::SetInThread(const bool flag)
+{
+	m_isInThread = flag;
 }
 
 const String Client::GetName() const

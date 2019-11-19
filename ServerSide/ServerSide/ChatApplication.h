@@ -30,7 +30,7 @@ private:
 
 	void WaitForClients();
 
-	//void ReceiveText();
+	void CheckForServerExit();
 
 	void UpdateChat(int clientID);
 
