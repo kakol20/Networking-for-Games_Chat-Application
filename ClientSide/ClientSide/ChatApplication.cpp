@@ -24,21 +24,19 @@ bool ChatApplication::Run()
 
 	m_exit = false;
 
-	std::cin.ignore();
+	std::cin.ignore(1);
+
+	// recieving text
+
+	std::thread thread1 = std::thread(&ChatApplication::ReceiveText, this);
+	thread1.detach();
 
 	while (!m_exit)
 	{
 		// sending text
 		SendText();
 
-		// recieving text
-		//std::thread thread1 = std::thread(&ChatApplication::ReceiveText, this);
-		ReceiveText();
-
-		/*if (thread1.joinable())
-		{
-			thread1.join();
-		}*/
+		std::cin.ignore(0);
 	}
 
 	// --------- END ---------
@@ -108,59 +106,61 @@ bool ChatApplication::OpenSocket()
 
 void ChatApplication::ReceiveText()
 {
-	char response[2048] = { '\0' };
-
-	std::cin.ignore();
-
-	if (SDLNet_TCP_Recv(m_socket, response, 2048) <= 0)
+	while (!m_exit)
 	{
-		std::cout << "Error recieving message" << std::endl;
-		system("pause");
+		char response[2048] = { '\0' };
 
-		m_exit = true;
-	}
-	else
-	{
-		String messageStr = response;
+		//std::cin.ignore();
 
-		if (messageStr == "exit")
+		if (SDLNet_TCP_Recv(m_socket, response, 2048) <= 0)
 		{
+			std::cout << "Error recieving message" << std::endl;
+			system("pause");
+
 			m_exit = true;
 		}
 		else
 		{
-			int colorId = 15;
+			String messageStr = response;
 
-			char sep[] = "$";
+			if (messageStr == "exit")
+			{
+				m_exit = true;
+			}
+			else
+			{
+				int colorId = 15;
 
-			char* name;
-			char* color;
-			char* messageChar;
+				char sep[] = "$";
 
-			char* next;
+				char* name;
+				char* color;
+				char* messageChar;
 
-			name = strtok_s(response, sep, &next);
-			color = strtok_s(NULL, sep, &next);
-			messageChar = strtok_s(NULL, sep, &next);
+				char* next;
 
-			std::stringstream strs;
-			strs << color;
-			strs >> colorId;
+				name = strtok_s(response, sep, &next);
+				color = strtok_s(NULL, sep, &next);
+				messageChar = strtok_s(NULL, sep, &next);
 
-			HANDLE hconsole = GetStdHandle(STD_OUTPUT_HANDLE);
-			SetConsoleTextAttribute(hconsole, colorId);
+				std::stringstream strs;
+				strs << color;
+				strs >> colorId;
 
-			std::cout << name;
+				HANDLE hconsole = GetStdHandle(STD_OUTPUT_HANDLE);
+				SetConsoleTextAttribute(hconsole, colorId);
 
-			SetConsoleTextAttribute(hconsole, 15); //white
-			std::cout << " : " << messageChar << std::endl;
+				std::cout << name;
+
+				SetConsoleTextAttribute(hconsole, 15); //white
+				std::cout << " : " << messageChar << std::endl;
+			}
 		}
-	}
+	}	
 }
 
 void ChatApplication::SendText()
 {
-
 	String message = " ";
 
 	HANDLE hconsole = GetStdHandle(STD_OUTPUT_HANDLE);

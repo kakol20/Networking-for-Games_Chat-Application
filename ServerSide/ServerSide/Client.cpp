@@ -75,25 +75,29 @@ void Client::SendText(const String& message)
 void Client::UpdateInfo()
 {
 	// Ask for name
-	char name[2048] = { '\0' };
+	/*char name[2048] = { '\0' };
 
 	if (SDLNet_TCP_Recv(m_socket, name, 2048) <= 0)
 	{
 		std::cout << "Error sending message" << std::endl;
-	}
+	}*/
 
-	m_name = name;
+	//m_name = name;
 
-	// ask color they want to choose
-	char color[2048] = { '\0' };
+	ReceiveText(m_name);
+
+	// Ask color they want to choose
+	/*char color[2048] = { '\0' };
 
 	if (SDLNet_TCP_Recv(m_socket, color, 2048) <= 0)
 	{
 		std::cout << "Error sending message" << std::endl;
-	}
+	}*/
+	String color;
+	ReceiveText(color);
 
 	std::stringstream strValue;
-	strValue << color;
+	strValue << color.GetString();
 	strValue >> m_colorID;
 
 	HANDLE hconsole = GetStdHandle(STD_OUTPUT_HANDLE);
