@@ -2,7 +2,7 @@
 #define CLIENT_H
 
 #include <sstream>
-#include <windows.h> 
+#include <windows.h>
 
 #include <SDL.h>
 #include <SDL_net.h>
@@ -48,9 +48,8 @@ private:
 	bool m_disconnecting;
 
 	bool m_isConnected;
-	
-	bool m_isInThread;
 
+	bool m_isInThread;
 
 	TCPsocket m_socket = nullptr;
 };

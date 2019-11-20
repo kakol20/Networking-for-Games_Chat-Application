@@ -24,7 +24,7 @@ public:
 
 	bool operator==(const String& copyString);
 	bool operator==(const char* string);
-	
+
 	bool operator!=(const String& copyString);
 	bool operator!=(const char* string);
 

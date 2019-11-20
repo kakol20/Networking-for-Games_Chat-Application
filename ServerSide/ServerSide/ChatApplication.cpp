@@ -21,7 +21,7 @@ bool ChatApplication::Run()
 	// Waiting for clients
 
 	m_clients[m_clientIDCount] = new Client();
-	
+
 	std::thread thread1 = std::thread(&ChatApplication::WaitForClients, this);
 
 	thread1.detach();
@@ -42,13 +42,13 @@ bool ChatApplication::Run()
 	{
 		// Sending and receiving
 
-		for (auto it = m_clients.begin(); it != m_clients.end(); it++) 
+		for (auto it = m_clients.begin(); it != m_clients.end(); it++)
 		{
 			if (!it->second->InThread() && it->second->ClientConnected()) // check if the client's update chat is already in a thread and it's connected
 			{
 				std::thread thread3 = std::thread(&ChatApplication::UpdateChat, this, it->first);
 				thread3.detach();
-				
+
 				it->second->SetInThread(true);
 			}
 		}
@@ -132,7 +132,6 @@ void ChatApplication::WaitForClients()
 		m_clientIDCount++;
 
 		m_clients[m_clientIDCount] = new Client();
-
 	}
 }
 

@@ -94,7 +94,6 @@ String String::operator+(const char* string)
 
 String& String::operator+=(const String& copyString)
 {
-
 	return this->operator+=(copyString.m_string);
 }
 

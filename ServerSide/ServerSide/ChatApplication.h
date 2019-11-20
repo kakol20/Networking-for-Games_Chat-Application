@@ -49,7 +49,7 @@ private:
 	//Connection m_host
 
 	TCPsocket m_listenSocket;
-	
+
 	IPaddress m_IP;
 };
 #endif // !CHAT_APPLICATION_H

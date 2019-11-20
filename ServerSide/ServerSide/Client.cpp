@@ -55,7 +55,6 @@ bool Client::TextReceived() const
 
 void Client::SendText(const String& message)
 {
-
 	String full = message;
 	int length = message.Length() + 1;
 
