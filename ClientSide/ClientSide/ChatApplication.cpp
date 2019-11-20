@@ -156,7 +156,7 @@ void ChatApplication::ReceiveText()
 				std::cout << " : " << messageChar << std::endl;
 			}
 		}
-	}	
+	}
 }
 
 void ChatApplication::SendText()
@@ -219,7 +219,7 @@ bool ChatApplication::SendInfo()
 	}
 
 	SetConsoleTextAttribute(hconsole, 15);
-	
+
 	std::cin >> m_color;
 
 	char colorChar[4] = { '\0' };
@@ -252,5 +252,3 @@ void ChatApplication::Shutdown()
 	SDLNet_Quit();
 	SDL_Quit();
 }
-
-	

@@ -9,7 +9,6 @@
 
 #include "String.h"
 
-
 class Connection
 {
 public:
@@ -18,7 +17,7 @@ public:
 
 	bool Init();
 	bool ResolveHost(const String& address, int port);
-	
+
 	bool OpenSocket();
 
 	bool RecieveText(String& message);

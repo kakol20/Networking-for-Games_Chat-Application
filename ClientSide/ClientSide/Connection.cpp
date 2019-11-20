@@ -57,7 +57,7 @@ bool Connection::OpenSocket()
 
 		return false;
 	}
-	
+
 	return true;
 }
 
