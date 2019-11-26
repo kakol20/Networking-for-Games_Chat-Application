@@ -57,7 +57,6 @@ String& String::operator=(const String& copyString)
 String& String::operator=(const char* string)
 {
 	delete[] m_string;
-	//m_string = nullptr;
 
 	const size_t SIZE = strlen(string) + 1;
 
@@ -80,13 +79,6 @@ String String::operator+(const String& copyString)
 
 String String::operator+(const char* string)
 {
-	/*size_t SIZE = strlen(m_string) + strlen(string) + 1;
-
-	char* temp = new char[SIZE];
-
-	strcpy_s(temp, SIZE, m_string);
-	strcat_s(temp, SIZE, string);*/
-
 	String newString = m_string;
 	newString += string;
 
