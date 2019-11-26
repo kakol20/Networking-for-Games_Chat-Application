@@ -27,6 +27,7 @@ public:
 	void UpdateInfo();
 
 	bool IsDisconnecting() const;
+	//void SetIsDisconnecting
 
 	bool ClientConnected() const;
 

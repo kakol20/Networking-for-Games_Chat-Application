@@ -55,14 +55,24 @@ bool ChatApplication::Run()
 
 		// Looks for a disconnected client and removes it from map container
 
+		std::vector<int> disconnectedClients; // stores the id of disconnected clients
+
 		for (auto it = m_clients.begin(); it != m_clients.end(); it++)
 		{
 			if (it->second->IsDisconnecting())
 			{
-				m_clients[it->first]->CloseSocket();
-				delete m_clients[it->first];
-				m_clients[it->first] = nullptr;
+				disconnectedClients.push_back(it->first);
+				//m_clients.erase(it->first);
 			}
+		}
+
+		for (auto it = disconnectedClients.begin(); it != disconnectedClients.end(); it++)
+		{
+			m_clients[(*it)]->CloseSocket();
+			delete m_clients[(*it)];
+			m_clients[(*it)] = nullptr;
+
+			m_clients.erase((*it));
 		}
 	}
 
@@ -162,30 +172,30 @@ void ChatApplication::UpdateChat(int clientID)
 		// receives text
 		m_clients[clientID]->ReceiveText(message);
 
-		// prints it for server
-		HANDLE hconsole = GetStdHandle(STD_OUTPUT_HANDLE);
-		SetConsoleTextAttribute(hconsole, m_clients[clientID]->GetColor()); // sets color
-
-		std::cout << m_clients[clientID]->GetName();
-
-		SetConsoleTextAttribute(hconsole, 15); // sets it back to white
-		std::cout << ": " << message << std::endl;
-
-		// send text to other client
-
-		if (m_clients.size() - 1 == 1) // checks if only 1 client is connected
+		if (message != "exit")
 		{
-			String serverMsg = "Server$64$No other client connected"; // Name$Color$Message
+			// prints it for server
+			HANDLE hconsole = GetStdHandle(STD_OUTPUT_HANDLE);
+			SetConsoleTextAttribute(hconsole, m_clients[clientID]->GetColor()); // sets color
 
-			auto it = m_clients.begin();
+			std::cout << m_clients[clientID]->GetName();
 
-			it->second->SendText(serverMsg);
-		}
-		else // else send it message to other clients
-		{
-			if (m_clients[clientID]->TextReceived())
+			SetConsoleTextAttribute(hconsole, 15); // sets it back to white
+			std::cout << ": " << message << std::endl;
+
+			// send text to other client
+
+			if (m_clients.size() - 1 == 1) // checks if only 1 client is connected
 			{
-				if (message != "exit")
+				String serverMsg = "Server$64$No other client connected"; // Name$Color$Message
+
+				auto it = m_clients.begin();
+
+				it->second->SendText(serverMsg);
+			}
+			else // else send it message to other clients
+			{
+				if (m_clients[clientID]->TextReceived())
 				{
 					// Add other client's info - e.g. name and the color they chose
 					String full = m_clients[clientID]->GetName();
@@ -207,7 +217,7 @@ void ChatApplication::UpdateChat(int clientID)
 					// sends it to other clients
 					for (auto it = m_clients.begin(); it != m_clients.end(); it++)
 					{
-						if (it->second->ClientConnected())
+						if (it->second->ClientConnected() && !it->second->IsDisconnecting())
 						{
 							if (it->first != clientID) // except for itself
 							{
@@ -227,11 +237,22 @@ void ChatApplication::UpdateChat(int clientID)
 						}
 					}
 				}
-				else
-				{
-					break;
-				}
 			}
 		}
+		else
+		{
+			HANDLE hconsole = GetStdHandle(STD_OUTPUT_HANDLE);
+			SetConsoleTextAttribute(hconsole, 64);
+
+			std::cout << "A user has disconnected";
+
+			SetConsoleTextAttribute(hconsole, 15);
+
+			std::cout << std::endl;
+
+			break;
+		}
+
+		
 	}
 }

@@ -114,10 +114,13 @@ void ChatApplication::ReceiveText()
 
 		if (SDLNet_TCP_Recv(m_socket, response, 2048) <= 0)
 		{
-			std::cout << "Error recieving message" << std::endl;
-			system("pause");
+			if (!m_exit)
+			{
+				std::cout << "Error recieving message" << std::endl;
+				system("pause");
 
-			m_exit = true;
+				m_exit = true;
+			}
 		}
 		else
 		{
@@ -164,30 +167,27 @@ void ChatApplication::SendText()
 	String message = " ";
 
 	HANDLE hconsole = GetStdHandle(STD_OUTPUT_HANDLE);
-	/*SetConsoleTextAttribute(hconsole, m_color);
-
-	std::cout << m_name;*/
-
+	
 	SetConsoleTextAttribute(hconsole, 7); //white
 	//std::cout << " : ";
 
 	std::cin >> message;
 
-	if (message == "exit")
-	{
-		m_exit = true;
-	}
+	//String temp = message;
 
-	String temp = message;
+	int length = message.Length() + 1;
 
-	int length = temp.Length() + 1;
-
-	if (SDLNet_TCP_Send(m_socket, temp.GetString(), length) < length)
+	if (SDLNet_TCP_Send(m_socket, message.GetString(), length) < length)
 	{
 		std::cout << "Error sending message to server " << std::endl;
 
 		m_exit = true;
 		system("pause");
+	}
+
+	if (message == "exit")
+	{
+		m_exit = true;
 	}
 }
 

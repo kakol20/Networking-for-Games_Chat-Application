@@ -45,6 +45,8 @@ void Client::ReceiveText(String& message)
 	{
 		message = response;
 		m_Received = true;
+
+		if (message == "exit") m_disconnecting = true;
 	}
 }
 
@@ -66,10 +68,13 @@ void Client::SendText(const String& message)
 
 	if (SDLNet_TCP_Send(m_socket, full.GetString(), length) < length)
 	{
-		std::cout << "Error sending message to: ";
-		std::cout << m_name;
-		std::cout << std::endl;
-		system("pause");
+		if (!m_disconnecting)
+		{
+			std::cout << "Error sending message to: ";
+			std::cout << m_name;
+			std::cout << std::endl;
+			system("pause");
+		}
 	}
 }
 

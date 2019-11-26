@@ -133,13 +133,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="ChatApplication.cpp" />
-    <ClCompile Include="Connection.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="String.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ChatApplication.h" />
-    <ClInclude Include="Connection.h" />
     <ClInclude Include="String.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
