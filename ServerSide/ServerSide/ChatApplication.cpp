@@ -6,6 +6,15 @@ ChatApplication::ChatApplication()
 
 ChatApplication::~ChatApplication()
 {
+	for (auto it = m_clients.begin(); it != m_clients.end(); it++)
+	{
+		if (it->second != nullptr)
+		{
+			it->second->CloseSocket();
+			delete it->second;
+			it->second = nullptr;
+		}
+	}
 }
 
 bool ChatApplication::Run()
@@ -76,14 +85,6 @@ bool ChatApplication::Run()
 		}
 	}
 
-	// deletes all clients in map container
-	for (auto it = m_clients.begin(); it != m_clients.end(); it++)
-	{
-		m_clients[it->first]->CloseSocket();
-		delete m_clients[it->first];
-		m_clients[it->first] = nullptr;
-	}
-
 	// --------- END ---------
 
 	Shutdown();
@@ -132,16 +133,22 @@ void ChatApplication::WaitForClients()
 {
 	while (!m_exit)
 	{
-		while (m_clients[m_clientIDCount]->GetSocket() == nullptr)
+		if (m_clients[m_clientIDCount] != nullptr)
 		{
-			m_clients[m_clientIDCount]->ListenForClient(m_listenSocket);
+			while (m_clients[m_clientIDCount] != nullptr && m_clients[m_clientIDCount]->GetSocket() == nullptr)
+			{
+				m_clients[m_clientIDCount]->ListenForClient(m_listenSocket);
+			}
+
+			if (!m_exit)
+			{
+				m_clients[m_clientIDCount]->UpdateInfo();
+
+				m_clientIDCount++;
+
+				m_clients[m_clientIDCount] = new Client();
+			}
 		}
-
-		m_clients[m_clientIDCount]->UpdateInfo();
-
-		m_clientIDCount++;
-
-		m_clients[m_clientIDCount] = new Client();
 	}
 }
 
@@ -159,6 +166,8 @@ void ChatApplication::CheckForServerExit()
 
 void ChatApplication::Shutdown()
 {
+	SDLNet_TCP_Close(m_listenSocket);
+
 	SDLNet_Quit();
 	SDL_Quit();
 }
@@ -252,7 +261,5 @@ void ChatApplication::UpdateChat(int clientID)
 
 			break;
 		}
-
-		
 	}
 }

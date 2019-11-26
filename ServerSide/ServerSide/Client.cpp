@@ -24,7 +24,11 @@ const TCPsocket Client::GetSocket() const
 
 void Client::ListenForClient(const TCPsocket& listenSocket)
 {
-	m_socket = SDLNet_TCP_Accept(listenSocket);
+	if (listenSocket != nullptr)
+	{
+		m_socket = SDLNet_TCP_Accept(listenSocket);
+
+	}
 	//m_isConnected = true;
 }
 
@@ -138,4 +142,5 @@ const int Client::GetColor() const
 void Client::CloseSocket()
 {
 	SDLNet_TCP_Close(m_socket);
+	m_disconnecting = true;
 }

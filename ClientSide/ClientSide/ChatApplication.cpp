@@ -26,7 +26,19 @@ bool ChatApplication::Run()
 
 	std::cin.ignore(1);
 
+	HANDLE hconsole = GetStdHandle(STD_OUTPUT_HANDLE);
+	SetConsoleTextAttribute(hconsole, 64);
+
+	std::cout << "                                                                                                               " << std::endl;
+	std::cout << ". . .     |                            --.--         --.--|             ,---.|         |        ,---.          " << std::endl;
+	std::cout << "| | |,---.|    ,---.,---.,-.-.,---.      |  ,---.      |  |---.,---.    |    |---.,---.|---     |---|,---.,---." << std::endl;
+	std::cout << "| | ||---'|    |    |   || | ||---'      |  |   |      |  |   ||---'    |    |   |,---||        |   ||   ||   |" << std::endl;
+	std::cout << "`-'-'`---'`---'`---'`---'` ' '`---'      `  `---'      `  `   '`---'    `---'`   '`---^`---'    `   '|---'|---'" << std::endl;
+	std::cout << "                                                                                                     |    |    " << std::endl;
+
 	// recieving text
+
+	SetConsoleTextAttribute(hconsole, 15);
 
 	std::thread thread1 = std::thread(&ChatApplication::ReceiveText, this);
 	thread1.detach();
