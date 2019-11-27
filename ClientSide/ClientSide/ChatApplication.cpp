@@ -144,6 +144,13 @@ void ChatApplication::ReceiveText()
 			}
 			else
 			{
+				// parses recieved text
+				/// A$B$C
+				/// $ - Seperator
+				/// A - The name of the client
+				/// B - The color ID of the client
+				/// C - The message
+
 				int colorId = 15;
 
 				char sep[] = "$";
